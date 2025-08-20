@@ -12,6 +12,6 @@ const userSchema = new mongoose.Schema({
   verifyPasswordExpiry: { type: Date, default: null },
 });
 
-const User = mongoose.model("User", userSchema);
+const User = mongoose.models.users || mongoose.model("users", userSchema);
 
 export default User;

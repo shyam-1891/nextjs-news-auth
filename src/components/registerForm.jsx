@@ -1,4 +1,61 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { toast } from "react-hot-toast";
+import { useRouter } from "next/navigation";
 function RegisterForm() {
+  const router = useRouter();
+  const [formData, setFormData] = useState({
+    email: "",
+    name: "",
+    password: "",
+  });
+
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    // Handle input changes
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Handle form submission
+    onSignUp(formData);
+  };
+
+  useEffect(() => {
+    if (formData.email.length > 0 && formData.name.length > 0 && formData.password.length > 0) {
+      setIsButtonDisabled(false);
+    } else {
+      setIsButtonDisabled(true);
+    }
+  }, [formData]);
+
+  const onSignUp = async (data) => {
+    try {
+      setIsLoading(true);
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_DOMAIN || 'http://localhost:3000'}/api/users/signup`,
+        data
+      );
+      if (response.status === 201) {
+        toast.success("Registration successful");
+        router.push("/login");
+      } else {
+        toast.error("Registration failed");
+      }
+    } catch (error) {
+      console.error("Error signing up:", error);
+      toast.error("Registration failed. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="bg-white">
       <div className="flex flex-col items-center justify-center py-6 px-4 my-10">
@@ -7,86 +64,77 @@ function RegisterForm() {
             <h1 className="text-center text-gray-900 sm:text-5xl font-semibold">
               Register
             </h1>
-            <form className="mt-12 space-y-6">
+            <form className="mt-12 space-y-6" onSubmit={handleSubmit}>
               <div>
-                <label className="text-slate-900 text-sm font-medium mb-2 block" htmlFor="email">
-                  User name
+                <label
+                  className="text-slate-900 text-sm font-medium mb-2 block"
+                  htmlFor="email"
+                >
+                  User Email<sup>*</sup>
                 </label>
                 <div className="relative flex items-center">
                   <input
                     name="email"
                     type="email"
                     required
-                    className="w-full text-white text-sm border border-slate-300 px-4 py-3 pr-8 rounded-md outline-red-800"
+                    className="w-full text-black text-sm border border-slate-300 px-4 py-3 pr-8 rounded-md outline-red-800"
                     placeholder="Enter email"
+                    onChange={handleChange}
+                    value={formData.email}
                   />
                 </div>
               </div>
               <div>
-                <label className="text-slate-900 text-sm font-medium mb-2 block" htmlFor="username">
-                  User name
+                <label
+                  className="text-slate-900 text-sm font-medium mb-2 block"
+                  htmlFor="name"
+                >
+                  User name<sup>*</sup>
                 </label>
                 <div className="relative flex items-center">
                   <input
-                    name="username"
+                    name="name"
                     type="text"
                     required
-                    className="w-full text-white text-sm border border-slate-300 px-4 py-3 pr-8 rounded-md outline-red-800"
+                    className="w-full text-black text-sm border border-slate-300 px-4 py-3 pr-8 rounded-md outline-red-800"
                     placeholder="Enter user name"
+                    onChange={handleChange}
+                    value={formData.name}
                   />
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="#bbb"
-                    stroke="#bbb"
-                    className="w-4 h-4 absolute right-4"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      cx="10"
-                      cy="7"
-                      r="6"
-                      data-original="#000000"
-                    ></circle>
-                    <path
-                      d="M14 15H6a5 5 0 0 0-5 5 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 5 5 0 0 0-5-5zm8-4h-2.59l.3-.29a1 1 0 0 0-1.42-1.42l-2 2a1 1 0 0 0 0 1.42l2 2a1 1 0 0 0 1.42 0 1 1 0 0 0 0-1.42l-.3-.29H22a1 1 0 0 0 0-2z"
-                      data-original="#000000"
-                    ></path>
-                  </svg>
                 </div>
               </div>
               <div>
-                <label className="text-slate-900 text-sm font-medium mb-2 block" htmlFor="password">
-                  Password
+                <label
+                  className="text-slate-900 text-sm font-medium mb-2 block"
+                  htmlFor="password"
+                >
+                  Password<sup>*</sup>
                 </label>
                 <div className="relative flex items-center">
                   <input
                     name="password"
                     type="password"
                     required
-                    className="w-full text-white text-sm border border-slate-300 px-4 py-3 pr-8 rounded-md outline-red-800"
+                    className="w-full text-black text-sm border border-slate-300 px-4 py-3 pr-8 rounded-md outline-red-800"
                     placeholder="Enter password"
+                    onChange={handleChange}
+                    value={formData.password}
                   />
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="#bbb"
-                    stroke="#bbb"
-                    className="w-4 h-4 absolute right-4 cursor-pointer"
-                    viewBox="0 0 128 128"
-                  >
-                    <path
-                      d="M64 104C22.127 104 1.367 67.496.504 65.943a4 4 0 0 1 0-3.887C1.367 60.504 22.127 24 64 24s62.633 36.504 63.496 38.057a4 4 0 0 1 0 3.887C126.633 67.496 105.873 104 64 104zM8.707 63.994C13.465 71.205 32.146 96 64 96c31.955 0 50.553-24.775 55.293-31.994C114.535 56.795 95.854 32 64 32 32.045 32 13.447 56.775 8.707 63.994zM64 88c-13.234 0-24-10.766-24-24s10.766-24 24-24 24 10.766 24 24-10.766 24-24 24zm0-40c-8.822 0-16 7.178-16 16s7.178 16 16 16 16-7.178 16-16-7.178-16-16-16z"
-                      data-original="#000000"
-                    ></path>
-                  </svg>
                 </div>
               </div>
 
               <div className="!mt-12">
                 <button
-                  type="button"
-                  className="w-full py-2 px-4 text-[15px] font-medium tracking-wide rounded-md text-white bg-red-800 hover:bg-red-900 focus:outline-none cursor-pointer"
+                  type="submit"
+                  disabled={isButtonDisabled}
+                  className={`w-full py-2 px-4 text-[15px] font-medium tracking-wide rounded-md text-white focus:outline-none ${
+                    isButtonDisabled 
+                      ? 'bg-gray-400 cursor-not-allowed' 
+                      : 'bg-red-800 hover:bg-red-900 cursor-pointer'
+                  }`}
                 >
-                  Sign up
+                  {isButtonDisabled ? "Please fill all fields" : "Sign up"}
+                  {isLoading && <span>Loading...</span>}
                 </button>
               </div>
               <p className="text-slate-900 text-sm !mt-6 text-center">
@@ -102,7 +150,7 @@ function RegisterForm() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default RegisterForm
+export default RegisterForm;
